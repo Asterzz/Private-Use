@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>History Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+        #container {
+            width: 90%;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px 1px rgba(0,0,0,0.2);
+        }
+        h1 {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 0;
+            color: #555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        th {
+            background-color: #f5f5f5;
+            color: #333;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            position: sticky;
+            top: 0;
+        }
+        tr:hover {
+            background-color: #f0f0f0;
+        }
+        #search-box, #filter-box {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        #search-input, #filter-select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-right: 10px;
+            font-size: 14px;
+            width: 200px;
+        }
+        .fa-search {
+            margin-right: 5px;
+        }
+        .fa-filter {
+            margin-right: 5px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .pagination-link {
+            margin: 0 5px;
+            padding: 8px;
+            border-radius: 5px;
+            background-color: #f5f5f5;
+            color: #555;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .pagination-link:hover {
+            background-color: #ddd;
+        }
+        .pagination-link.current {
+            background-color: #555;
+            color: #fff;
+        }
+        .pagination-link.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="search-box">
+            <input type="text" id="search-input" placeholder="Search...">
+        </div>
+        <div id="filter-box">
+            <select id="filter-select">
+                <option value="">All</option>
+                <option value="user">User</option>
+                <option value="bot">Bot</option>
+            </select>
+    
+    
+        </div>
+    
+        <table>
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Message</th>
+                    <th>Reply</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in result_tuple %}
+                <tr>
+                    <td>{{ item[1] }}</td>
+                    <td id="message">{{ item[2] }}</td>
+                    <td id="reply">{{ item[3] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="pagination">
+            {% if prev_num %}
+            <a href="/history?page={{ prev_num }}{{ query }}" class="pagination-link">&laquo;</a>
+            {% endif %}
+            {% for num in page_nums %}
+            {% if num == '...' %}
+            <span class="pagination-link">{{ num }}</span>
+            {% else %}
+            <a href="/history?page={{ num }}{{ query }}" class="pagination-link{% if num == page %} current{% endif %}">{{ num }}</a>
+            {% endif %}
+            {% endfor%}
+            {% if next_num %}
+<a href="/history?page={{ next_num }}{{ query }}" class="pagination-link">»</a>
+{% endif %}
+</div>
+
+</div>
+<script>
+    const searchInput = document.getElementById("search-input");
+    const filterSelect = document.getElementById("filter-select");
+    const messageCells = document.querySelectorAll("#message");
+    const replyCells = document.querySelectorAll("#reply");
+
+    // filter messages by search input and filter selection
+    const filterMessages = () => {
+        const searchValue = searchInput.value.toLowerCase();
+        const filterValue = filterSelect.value.toLowerCase();
+        messageCells.forEach((cell, index) => {
+            const replyCell = replyCells[index];
+            const messageText = cell.textContent.toLowerCase();
+            const replyText = replyCell.textContent.toLowerCase();
+            if (filterValue === "user" && replyText !== "bot") {
+                cell.parentElement.style.display = "none";
+            } else if (filterValue === "bot" && replyText !== "user") {
+                cell.parentElement.style.display = "none";
+            } else if (!messageText.includes(searchValue)) {
+                cell.parentElement.style.display = "none";
+            } else {
+                cell.parentElement.style.display = "";
+            }
+        });
+    };
+
+    // event listeners for search input and filter selection
+    searchInput.addEventListener("input", filterMessages);
+    filterSelect.addEventListener("change", filterMessages);
+</script>
+</body>
+    

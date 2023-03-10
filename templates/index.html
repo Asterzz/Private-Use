@@ -97,6 +97,22 @@
         cursor: pointer;
       }
 
+      #history-button {
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        background-color: #3a3233;
+        cursor: pointer;
+      }
+
+      
+      #history-button:hover {
+        background-color: #3a3233;
+      }
+
       #reset-button:hover {
         background-color: #c82333;
       }
@@ -114,6 +130,7 @@
           <input type="submit" value="Send" />
         </form>
         <button id="reset-button">Reset Conversation</button>
+        <button id="history-button">History</button>
         </div>
         </div>
         
@@ -148,6 +165,18 @@
               },
             });
           });
+
+          $("#history-button").click(function() {
+          $.ajax({
+            type: "GET",
+            url: "/history",
+            success: function(response) {
+              $("#history-content").html(response);
+              window.history.pushState(null, null, "/history");
+              window.location.href = "/history";
+              }
+            })
+          })
         });
         </script>
    </body>
