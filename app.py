@@ -18,14 +18,24 @@ os.chdir(dir_path)
 with open("db_config.json", "r") as json_file:
     db_config = json.load(json_file)
 
-#sql connection
-connection = pymysql.connect(
-    host=db_config["host"],
-    port=db_config["port"],
-    user=db_config["user"],
-    password=db_config["password"],
-    db=db_config["db"]
-)
+def sql_action(user_ip, formatted_time, user_input, ai_response):
+    #sql connection
+    connection = pymysql.connect(
+        host=db_config["host"],
+        port=db_config["port"],
+        user=db_config["user"],
+        password=db_config["password"],
+        db=db_config["db"]
+    )
+    cursor = connection.cursor()
+
+    # ADD DATA INTO SQL
+    insert_query = "INSERT INTO user_info (ip, user_time, user_input, gpt_output) VALUES (%s, %s, %s, %s)"
+    values = (user_ip, formatted_time, user_input, ai_response)
+    cursor.execute(insert_query, values)
+    connection.commit()
+    cursor.close()
+    connection.close()
 
 
 openai.api_key = db_config["api_key"]
@@ -40,7 +50,6 @@ def home():
 
 @app.route('/get_response', methods=['POST'])
 def get_bot_response():
-    cursor = connection.cursor()
     user_input = request.form['user_input']
     # get user ip
     user_ip = request.remote_addr
@@ -64,12 +73,8 @@ def get_bot_response():
     messages.append({'role': 'assistant', 'content': ai_response})
     print(messages)
 
-    # ADD DATA INTO SQL
-    insert_query = "INSERT INTO user_info (ip, user_time, user_input, gpt_output) VALUES (%s, %s, %s, %s)"
-    values = (user_ip, formatted_time, user_input, ai_response)
-    cursor.execute(insert_query, values)
-    connection.commit()
-    cursor.close()
+    #SQL ADD
+    sql_action(user_ip, formatted_time, user_input, ai_response)
 
     return  Markup(markdown.markdown(ai_response, extensions=['fenced_code', 'codehilite']))
 

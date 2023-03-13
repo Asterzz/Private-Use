@@ -5,7 +5,6 @@ import time
 def get_pid(item):
     pids = os.popen("pgrep -f {}".format(item))
     pids = pids.read()
-    print(item, "PID IS:", pids, type(pids))
     return pids
  
  
