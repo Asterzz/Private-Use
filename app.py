@@ -18,7 +18,7 @@ os.chdir(dir_path)
 with open("db_config.json", "r") as json_file:
     db_config = json.load(json_file)
 
-def sql_action(user_ip, formatted_time, user_input, ai_response):
+def sql_add(user_ip, formatted_time, user_input, ai_response):
     #sql connection
     connection = pymysql.connect(
         host=db_config["host"],
@@ -36,6 +36,27 @@ def sql_action(user_ip, formatted_time, user_input, ai_response):
     connection.commit()
     cursor.close()
     connection.close()
+
+def sql_search(user_ip):
+    #sql connection
+    connection = pymysql.connect(
+        host=db_config["host"],
+        port=db_config["port"],
+        user=db_config["user"],
+        password=db_config["password"],
+        db=db_config["db"]
+    )
+    cursor = connection.cursor()
+
+    # SEARCH DATA FROM SQL
+    
+    cursor = connection.cursor()
+    search_query = "SELECT * FROM user_info WHERE ip = %s"
+    cursor.execute(search_query, user_ip)
+    result = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return result
 
 
 openai.api_key = db_config["api_key"]
@@ -74,7 +95,7 @@ def get_bot_response():
     print(messages)
 
     #SQL ADD
-    sql_action(user_ip, formatted_time, user_input, ai_response)
+    sql_add(user_ip, formatted_time, user_input, ai_response)
 
     return  Markup(markdown.markdown(ai_response, extensions=['fenced_code', 'codehilite']))
 
@@ -88,15 +109,11 @@ def reset():
 def history():
     user_ip = request.remote_addr
 
-    cursor = connection.cursor()
-    search_query = "SELECT * FROM user_info WHERE ip = %s"
-    cursor.execute(search_query, user_ip)
-    result = cursor.fetchall()
+    result = sql_search(user_ip)
 
-    cursor.close()
     return render_template('history.html', result_tuple = result)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
 
