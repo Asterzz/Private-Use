@@ -33,6 +33,7 @@ def start(item, start_command):
             time.sleep(10)
             start_item(item, start_command)
             print("restart succeed-----------------")
+            print("PID NOW:\n",get_pid(item))
         except:
             print("kill false-------------")
     else:  
