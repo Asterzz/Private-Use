@@ -2,8 +2,8 @@ import os
 import time
  
  
-def get_pid(itme):
-    pids = os.popen("pgrep -f {}".format(itme))
+def get_pid(item):
+    pids = os.popen("pgrep -f {}".format(item))
     pids = pids.read()
     print(item, "PID IS:", pids, type(pids))
     return pids
@@ -27,16 +27,19 @@ def start(item, start_command):
     print("status: {}".format(get_pid(item)))
     if get_pid(item):  
         print("already start, start killing------------")
-        kill_item(item)
-        print("kill succeed--------------")
-        time.sleep(10)
-        start_item(item, start_command)
-        print("restart succeed-----------------")
+        try:    
+            kill_item(item)
+            print("kill succeed--------------")
+            time.sleep(10)
+            start_item(item, start_command)
+            print("restart succeed-----------------")
+        except:
+            print("kill false-------------")
     else:  
         start_item(item, start_command)
  
  
 if __name__ == '__main__':
-    item = "manage_qa_tools"  
+    item = "app.py"  
     start_command = "nohup python3 app.py >app.log 2>&1 &"  
     start(item, start_command)
