@@ -24,7 +24,7 @@ def start_item(item, start_commond):
  
  
 def start(item, start_command):
-    print("status: {}".format(get_pid(item)))
+    print(get_pid(item))
     if get_pid(item):  
         print("already start, start killing------------")
         try:    
@@ -33,6 +33,7 @@ def start(item, start_command):
             time.sleep(10)
             start_item(item, start_command)
             print("restart succeed-----------------")
+            print("PID NOW:\n",get_pid())
         except:
             print("kill false-------------")
     else:  
